@@ -4,6 +4,14 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { MobileNav } from "@/components/layout/MobileNav";
 import { IncomingCallListener } from "@/components/calls/IncomingCallListener";
 
+// Force dynamic rendering — every route under (main) depends on the
+// caller's session/cookies. Without this, an auth redirect response can
+// get cached (edge/CDN) and served to later requests regardless of who's
+// actually logged in.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
+
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const user = await getAuthUser();
   if (!user) redirect("/login");
