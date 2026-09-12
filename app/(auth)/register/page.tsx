@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -41,8 +39,10 @@ export default function RegisterPage() {
       return;
     }
     if (data.session) {
-      router.push("/onboarding");
-      router.refresh();
+      // Full navigation — same reasoning as login: avoids a timing gap
+      // where the new route's server-side auth check runs before the
+      // fresh session cookie is available.
+      window.location.href = "/onboarding";
       return;
     }
     setDone(true);

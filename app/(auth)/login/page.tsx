@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 
@@ -15,7 +15,6 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,8 +34,12 @@ function LoginForm() {
       setError(error.message);
       return;
     }
-    router.push(searchParams.get("next") || "/feed");
-    router.refresh();
+    // A full navigation (not router.push) so the new page's server-side
+    // auth check sees the just-written session cookie immediately —
+    // client-side navigation right after sign-in has a known timing gap
+    // where Next.js can render the new route before the cookie is picked
+    // up, bouncing back to /login even though sign-in succeeded.
+    window.location.href = searchParams.get("next") || "/feed";
   }
 
   return (
